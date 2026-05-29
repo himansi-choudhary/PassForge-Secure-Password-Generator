@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PassForge — Secure Password Generator</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Fonts: Syne (display) + JetBrains Mono (monospace accent) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" defer></script>
+</head>
+<body>
+
+  <!-- ── Animated background grid ── -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+  <!-- ── Theme Toggle ── -->
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+    <i class="ph-bold ph-moon" id="themeIcon"></i>
+  </button>
+
+  <!-- ── Toast Notification ── -->
+  <div class="toast" id="toast" role="alert" aria-live="polite">
+    <i class="ph-bold ph-check-circle"></i>
+    <span id="toastMsg">Password copied!</span>
+  </div>
+
+  <!-- ── Main App ── -->
+  <main class="app-wrapper">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <i class="ph-bold ph-lock-key"></i>
+        <span class="logo-text">Pass<span class="accent">Forge</span></span>
+      </div>
+      <p class="tagline">Craft cryptographically strong passwords in seconds</p>
+    </header>
+
+    <!-- ── Password Display Card ── -->
+    <section class="card password-card" aria-label="Generated password">
+      <div class="password-output-wrap">
+        <input
+          type="text"
+          id="passwordOutput"
+          class="password-output"
+          readonly
+          aria-label="Generated password"
+          placeholder="Click generate…"
+          spellcheck="false"
+          autocomplete="off"
+        />
+        <div class="pw-actions">
+          <button class="icon-btn" id="copyBtn" title="Copy to clipboard" aria-label="Copy password">
+            <i class="ph-bold ph-copy"></i>
+          </button>
+          <button class="icon-btn" id="regenBtn" title="Regenerate" aria-label="Regenerate password">
+            <i class="ph-bold ph-arrows-clockwise"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Strength Bar -->
+      <div class="strength-section">
+        <div class="strength-bar-track">
+          <div class="strength-bar-fill" id="strengthBar"></div>
+        </div>
+        <div class="strength-meta">
+          <span class="strength-label" id="strengthLabel">—</span>
+          <span class="entropy-label" id="entropyLabel"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Controls Card ── -->
+    <section class="card controls-card" aria-label="Password options">
+
+      <!-- Length Slider -->
+      <div class="control-group">
+        <div class="control-label-row">
+          <label for="lengthSlider" class="ctrl-label">
+            <i class="ph-bold ph-ruler"></i> Length
+          </label>
+          <span class="length-value" id="lengthValue">16</span>
+        </div>
+        <input
+          type="range"
+          id="lengthSlider"
+          min="4" max="64" value="16"
+          class="slider"
+          aria-valuemin="4" aria-valuemax="64" aria-valuenow="16"
+        />
+        <div class="slider-ticks">
+          <span>4</span><span>16</span><span>32</span><span>48</span><span>64</span>
+        </div>
+      </div>
+
+      <!-- Character Options -->
+      <div class="control-group">
+        <p class="ctrl-label"><i class="ph-bold ph-text-aa"></i> Character Sets</p>
+        <div class="options-grid">
+          <label class="option-chip" data-type="uppercase">
+            <input type="checkbox" id="optUppercase" checked />
+            <span class="chip-inner">
+              <i class="ph-bold ph-arrow-fat-up"></i>
+              <span>Uppercase</span>
+              <code>A–Z</code>
+            </span>
+          </label>
+          <label class="option-chip" data-type="lowercase">
+            <input type="checkbox" id="optLowercase" checked />
+            <span class="chip-inner">
+              <i class="ph-bold ph-arrow-fat-down"></i>
+              <span>Lowercase</span>
+              <code>a–z</code>
+            </span>
+          </label>
+          <label class="option-chip" data-type="numbers">
+            <input type="checkbox" id="optNumbers" checked />
+            <span class="chip-inner">
+              <i class="ph-bold ph-hash"></i>
+              <span>Numbers</span>
+              <code>0–9</code>
+            </span>
+          </label>
+          <label class="option-chip" data-type="symbols">
+            <input type="checkbox" id="optSymbols" />
+            <span class="chip-inner">
+              <i class="ph-bold ph-brackets-curly"></i>
+              <span>Symbols</span>
+              <code>!@#…</code>
+            </span>
+          </label>
+          <label class="option-chip" data-type="pronounceable">
+            <input type="checkbox" id="optPronounceable" />
+            <span class="chip-inner">
+              <i class="ph-bold ph-microphone"></i>
+              <span>Pronounceable</span>
+              <code>syllables</code>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <button class="generate-btn" id="generateBtn" aria-label="Generate new password">
+        <i class="ph-bold ph-shield-check"></i>
+        <span>Generate Password</span>
+        <span class="btn-glow" aria-hidden="true"></span>
+      </button>
+    </section>
+
+    <!-- ── History Card ── -->
+    <section class="card history-card" aria-label="Password history">
+      <div class="history-header">
+        <h2 class="card-title">
+          <i class="ph-bold ph-clock-counter-clockwise"></i> Recent Passwords
+        </h2>
+        <button class="clear-btn" id="clearHistoryBtn" aria-label="Clear history">
+          <i class="ph-bold ph-trash"></i> Clear
+        </button>
+      </div>
+      <ul class="history-list" id="historyList">
+        <li class="history-empty" id="historyEmpty">
+          <i class="ph-bold ph-ghost"></i>
+          <span>No history yet — generate some passwords!</span>
+        </li>
+      </ul>
+    </section>
+
+    <footer class="app-footer">
+      Passwords are generated locally. Nothing is ever sent to a server.
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
